@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "pg": "^8.3.3",
+    "typeorm": "^0.2.26"
+  },
+  "devDependencies": {
+    "faker": "^5.1.0"
+  }
+}
