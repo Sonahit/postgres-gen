@@ -56,10 +56,23 @@ const orders = (usersData, productData, copies = 5) => {
   const orderHistory = [];
   for (let index = 0; index < copies; index++) {
     for (const product of productData) {
+      const time = faker.date.past();
       orderHistory.push({
         id: orderHistory.length + 1,
         userId: faker.helpers.randomize(usersData).id,
         productId: product.id,
+        createdAt: `${time.getFullYear()}-${(time.getUTCMonth() + 1)
+          .toFixed(0)
+          .padStart(2, 0)}-${time
+          .getDate()
+          .toFixed(0)
+          .padStart(2, 0)} ${time
+          .getHours()
+          .toFixed(0)
+          .padStart(2, 0)}:${time
+          .getMinutes()
+          .toFixed(0)
+          .padStart(2, 0)}:${time.getSeconds().toFixed(0).padStart(2, 0)}`,
       });
     }
   }
@@ -78,8 +91,9 @@ const productData = (data) =>
     .join(", ")}`.trim();
 
 const ordersData = (data = []) =>
-  `INSERT INTO orders(userId, productId) VALUES ${data.map(
-    ({ userId, productId }) => `(${userId}, ${productId})`
+  `INSERT INTO orders(userId, productId, createdAt) VALUES ${data.map(
+    ({ userId, productId, createdAt }) =>
+      `(${userId}, ${productId}, '${createdAt}')`
   )}`.trim();
 
 const pg = require("pg");
@@ -100,6 +114,10 @@ conn.connect().then(async (conn) => {
   ${usersData(users)};
   ${productData(products)}; 
   ${ordersData(history)};`;
-  await conn.query(sql);
+  try {
+    await conn.query(sql);
+  } catch (e) {
+    console.log(e);
+  }
   conn.release();
 });
